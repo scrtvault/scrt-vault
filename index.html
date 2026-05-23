@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SCRT VAULT</title>
+    
+    <!-- Custom Keyhole Inline SVG Tab Icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='35' r='18' fill='white'/%3E%3Cpath d='M 40 48 L 32 85 L 68 85 L 60 48 Z' fill='white'/%3E%3C/svg%3E">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Syne:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-black: #000000;
+            --vault-white: #ffffff;
+            --accent-gray: #111111;
+            --border-gray: #222222;
+            --muted-text: #a0a0a0; /* Enhanced visible mid-grey (not too faint, not pure white) */
+            --status-green: #00ff66;
+            --status-red: #ff3333;
+            --glow-premium: 0 0 12px rgba(255, 255, 255, 0.6), 0 0 25px rgba(255, 255, 255, 0.2);
+            --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* SYSTEM LAYOUT MATRIX */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background-color: var(--bg-black);
+        }
+
+        input[type="password"], input[type="text"], input[type="email"] {
+            cursor: text;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        body {
+            color: var(--vault-white);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* AMBIENT RADIAL FOCUS */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(18, 18, 18, 0.8) 0%, rgba(0, 0, 0, 1) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* CONTAINER BOX FOR CONTENT CENTERING */
+        .view-container {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* PERSISTENT GLOBAL HEADER BRANDING ARRANGEMENT */
+        .global-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2.2vh;
+            flex-shrink: 0;
+        }
+
+        /* GLOWING ASSET TOKENS */
+        .logo-container {
+            width: clamp(60px, 9vh, 80px);
+            height: clamp(60px, 9vh, 80px);
+            margin-bottom: 1.5vh;
+            animation: pulse-glow 3s ease-in-out infinite;
+            transition: transform 0.5s var(--ease-cinematic), filter 0.5s var(--ease-cinematic);
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+        }
+
+        .logo-container:hover {
+            transform: scale(1.05) rotate(3deg);
+            filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.9));
+        }
+
+        .keyhole-icon {
+            width: 100%;
+            height: 100%;
+            fill: var(--vault-white);
+        }
+
+        h1, .party-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.8rem, 4vh, 2.3rem);
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            text-shadow: var(--glow-premium);
+            transition: letter-spacing 0.5s var(--ease-cinematic), text-shadow 0.5s var(--ease-cinematic);
+        }
+
+        h1:hover, .party-title:hover {
+            letter-spacing: 12px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 35px rgba(255, 255, 255, 0.4);
+        }
+
+        .party-subtitle {
+            font-size: clamp(0.75rem, 1.8vh, 0.85rem);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--vault-white);
+            font-weight: 700;
+            text-shadow: var(--glow-premium);
+            margin-bottom: 1vh;
+        }
+
+        .prompt-action {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--vault-white);
+            transition: color 0.4s var(--ease-cinematic), text-shadow 0.4s var(--ease-cinematic);
+        }
+
+        .status-granted {
+            color: var(--status-green) !important;
+            text-shadow: 0 0 12px var(--status-green);
+        }
+
+        .status-denied {
+            color: var(--status-red) !important;
+            text-shadow: 0 0 12px var(--status-red);
+        }
+
+        /* SCREENS CONTAINER LAYER */
+        .screens-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 3.5vh;
+            transition: opacity 0.5s var(--ease-cinematic), transform 0.5s var(--ease-cinematic);
+        }
+
+        .hidden {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(15px) scale(0.99);
+            pointer-events: none;
+        }
+
+        /* MAIN SYSTEM BOUND CONTENT AREAS */
+        .content-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .pass-wrapper, .form-group {
+            position: relative;
+            width: 100%;
+            text-align: left;
+        }
+
+        .pass-wrapper {
+            text-align: center;
+        }
+
+        input[type="password"], input[type="text"], input[type="email"], select {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border-gray);
+            padding: 10px 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            color: var(--vault-white);
+            letter-spacing: 1.5px;
+            transition: border-color 0.4s var(--ease-cinematic), box-shadow 0.4s var(--ease-cinematic);
+        }
+
+        input[type="password"] {
+            text-align: center;
+            width: 180px;
+            margin: 0 auto;
+            display: block;
+            letter-spacing: 6px;
+        }
+
+        input:hover, select:hover { border-color: #444444; }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--vault-white);
+            box-shadow: 0 4px 10px -4px rgba(255, 255, 255, 0.1);
+        }
+
+        input::placeholder {
+            letter-spacing: 0.5px;
+            color: var(--muted-text);
+            font-size: 0.8rem;
+        }
+
+        input[type="password"]::placeholder {
+            text-align: center;
+        }
+
+        input:focus::placeholder {
+            color: #1a1a1a;
+        }
+
+        label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--vault-white);
+            display: block;
+            margin-bottom: 0.2rem;
+            font-weight: 700;
+        }
+
+        /* GRID LAYOUT CONSTRAINTS */
+        .form-container-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2.2vh;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 2.2vh;
+            }
+        }
+
+        /* INTERACTIVE TRIGGER KEY STYLINGS */
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--vault-white);
+            color: var(--vault-white);
+            padding: 13px 40px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            border-radius: 6px;
+            transition: all 0.4s var(--ease-cinematic);
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .action-btn:hover {
+            background: var(--vault-white);
+            color: var(--bg-black);
+            letter-spacing: 3.5px;
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        #lock-btn, #agree-btn {
+            width: 180px;
+            margin: 0 auto;
+        }
+
+        /* MANIFESTO LINES HOVER ARRANGEMENT */
+        .rules-manifesto {
+            width: 100%;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 2vh;
+        }
+
+        .rule-line {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #ffffff;
+            display: flex;
+            align-items: flex-start;
+            transition: transform 0.25s var(--ease-cinematic);
+        }
+
+        .rule-line:hover { transform: translateX(3px); }
+
+        .rule-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rule-title {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .rule-line:hover .rule-title { text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); }
+
+        .rule-desc {
+            font-size: clamp(0.72rem, 1.5vh, 0.78rem);
+            color: var(--muted-text);
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+        
+        .rule-line:hover .rule-desc { color: #b5b5b5; }
+        .rule-desc em { font-style: italic; color: #b0b0b0; }
+        .rule-line:hover .rule-desc em { color: #ffffff; text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+
+        /* METADATA TARGET CONFIGURATIONS */
+        .details-grid {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2.2vh;
+        }
+
+        .detail-block {
+            border-left: 1px solid var(--border-gray);
+            padding-left: 1.2rem;
+            text-align: left;
+            transition: border-color 0.4s var(--ease-cinematic), transform 0.4s var(--ease-cinematic);
+        }
+
+        .detail-block:hover {
+            border-color: var(--vault-white);
+            transform: translateX(4px);
+        }
+
+        .detail-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #777;
+            margin-bottom: 0.3rem;
+        }
+
+        .detail-value {
+            font-size: clamp(0.95rem, 2.2vh, 1.1rem);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-block:hover .detail-value { text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+
+        .detail-icon {
+            width: 15px;
+            height: 15px;
+            fill: var(--vault-white);
+            flex-shrink: 0;
+        }
+
+        .detail-block:hover .detail-icon { transform: scale(1.1); filter: drop-shadow(0 0 4px #fff); }
+
+        /* FIXED FLOATING SYSTEM CREDITS */
+        .footer-credits {
+            position: absolute;
+            bottom: 3vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.58rem;
+            color: var(--vault-white);
+            opacity: 0.25;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 2;
+            pointer-events: none;
+            font-weight: 700;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        .shake { animation: shake-anim 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake-anim {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="view-container">
+
+        <!-- PERSISTENT BRAND HEADER (ALWAYS ON TOP) -->
+        <div class="global-header">
+            <div class="logo-container">
+                <svg class="keyhole-icon" viewBox="0 0 100 100">
+                    <circle cx="50" cy="35" r="18" />
+                    <path d="M 40 48 L 32 85 L 68 85 L 60 48 Z" />
+                </svg>
+            </div>
+            <h1 id="global-title">SCRT VAULT</h1>
+        </div>
+
+        <div class="screens-container">
+
+            <!-- STAGE 1: GATEWAY LAYER -->
+            <div id="gate-screen" class="screen">
+                <div class="content-area">
+                    <div class="prompt-action" id="gate-prompt" style="text-align: center; margin-bottom: 2vh;">#UnlockTheScrt</div>
+                    <div class="pass-wrapper">
+                        <input type="password" id="vault-pass" placeholder="Enter Access Code" autocomplete="off">
+                    </div>
+                </div>
+                
+                <button class="action-btn" id="lock-btn" onclick="verifyAccess()">UNLOCK</button>
+            </div>
+
+            <!-- STAGE 2: HOUSE RULES -->
+            <div id="rules-screen" class="screen hidden">
+                <div class="content-area">
+                    <div class="rules-manifesto">
+                        <div class="rule-line">
+                            <div class="rule-content">
+                                <span class="rule-title">#1 : Access is a privilege</span>
+                                <span class="rule-desc">The party is strictly exclusive and your key(invite) is non-transferable — don’t fumble it!</span>
+                            </div>
+                        </div>
+                        <div class="rule-line">
+                            <div class="rule-content">
+                                <span class="rule-title">#2 : Be in the moment!</span>
+                                <span class="rule-desc">Privacy of guests & event details is paramount.<br>Minimize recording to respect the privacy of others and focus on being present in the moment.</span>
+                            </div>
+                        </div>
+                        <div class="rule-line">
+                            <div class="rule-content">
+                                <span class="rule-title">#3 : Authenticity</span>
+                                <span class="rule-desc">Show up as your authentic self and always respect everyone.</span>
+                            </div>
+                        </div>
+                        <div class="rule-line">
+                            <div class="rule-content">
+                                <span class="rule-title">#4 : Come Open-minded</span>
+                                <span class="rule-desc">Come open-minded to exploring new music,art and socializing with like-minded individuals.</span>
+                            </div>
+                        </div>
+                        <div class="rule-line">
+                            <div class="rule-content">
+                                <span class="rule-title">#5: Be a Secret Keeper</span>
+                                <span class="rule-desc">The location is private and the experience is temporary.<br><em>if anyone asks tomorrow, you were nowhere...</em></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="action-btn" id="agree-btn" onclick="navigateTo('reveal-screen')">I AGREE</button>
+            </div>
+
+            <!-- STAGE 3: DETAILS SCREEN -->
+            <div id="reveal-screen" class="screen hidden">
+                <p class="party-subtitle">Be a #ScrtKeeper</p>
+                
+                <div class="content-area">
+                    <div class="details-grid">
+                        <div class="detail-block">
+                            <div class="detail-label">Date</div>
+                            <div class="detail-value">
+                                <svg class="detail-icon" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+                                Sunday - 2nd Aug , 2026 
+                            </div>
+                        </div>
+                        <div class="detail-block">
+                            <div class="detail-label">Location</div>
+                            <div class="detail-value">
+                                <svg class="detail-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                SCRT VILLA
+                            </div>
+                        </div>
+                        <div class="detail-block">
+                            <div class="detail-label">Dress Code</div>
+                            <div class="detail-value">
+                                <svg class="detail-icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3h2a1 1 0 1 1 2 0c0 1.12-.61 2.1-1.52 2.62L3.11 12.4A1.5 1.5 0 0 0 4 15h16a1.5 1.5 0 0 0 .89-2.6L13.52 7.62A3 3 0 0 0 12 2zm8 11H4l7.21-4.12a1 1 0 0 0 .39-.47A1.1 1.1 0 0 0 11.5 7h1A1.1 1.1 0 0 0 12.5 7.41a1 1 0 0 0 .39.47z"/></svg>
+                                Cozy Pajama / Lounge Wear
+                            </div>
+                        </div>
+                        <div class="detail-block">
+                            <div class="detail-label">Entry</div>
+                            <div class="detail-value">
+                                <svg class="detail-icon" viewBox="0 0 24 24"><path d="M22 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v4c1.1 0 2 .9 2 2s-.9 2-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-9 7.5h-2v-2h2v2zm0-4.5h-2v-2h2v2zm0-4.5h-2V6h2v2z"/></svg>
+                                R.S.V.P
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="action-btn" onclick="navigateTo('rsvp-screen')">R.S.V.P</button>
+            </div>
+
+            <!-- STAGE 4: RSVP FORM SCREEN -->
+            <div id="rsvp-screen" class="screen hidden">
+                <div class="content-area">
+                    <div class="form-container-area">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="user-name">Full Name</label>
+                                <input type="text" id="user-name" placeholder="SCRT VAULT" autocomplete="off" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-ig">Instagram Handle</label>
+                                <input type="text" id="user-ig" placeholder="@scrtvault" autocomplete="off">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="user-email">Email Address</label>
+                                <input type="email" id="user-email" placeholder="scrtvault.events@gmail.com" autocomplete="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="user-city">CITY/TOWN</label>
+                                <input type="text" id="user-city" placeholder="e.g. Nairobi/Naivasha" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Bring a Friend (Referral) :</label>
+                            <label for="user-referral" style="text-transform: none; color: var(--muted-text); font-weight: 400; font-size: 0.6rem; letter-spacing: 0.3px; margin-bottom: 0.2rem;">(Instagram handle of someone you want to bring along. We will send them an invite!)</label>
+                            <input type="text" id="user-referral" placeholder="@scrt_friend691" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="action-btn" onclick="submitRSVP()">REQUEST KEY</button>
+            </div>
+
+            <!-- STAGE 5: FINAL CONFIRMATION SCREEN -->
+            <div id="success-screen" class="screen hidden">
+                <p class="party-subtitle" style="color: #666;">#ScrtKeeper</p>
+                
+                <div class="content-area">
+                    <div style="font-size: 0.8rem; letter-spacing: 1.5px; line-height: 1.6; max-width: 440px; margin: 0 auto;">
+                        <span style="font-weight: 700; color: #fff; display: block; margin-bottom: 0.6rem; letter-spacing: 2px; text-shadow: var(--glow-premium);">REQUEST RECEIVED</span>
+                        <span style="font-size: 0.72rem; color: var(--muted-text); display: block; line-height: 1.5; font-weight: 400;">Approved guests will receive a formal confirmation email<br>with additional details.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- GLOBAL PERSISTENT FOOTER SYSTEM -->
+    <div class="footer-credits">&copy; Powered by Kz Labs Africa (2026)</div>
+
+    <script>
+        const MASTER_PASSWORD = "SCRTPARTY001";
+
+        function verifyAccess() {
+            const passwordInput = document.getElementById('vault-pass');
+            const gateScreen = document.getElementById('gate-screen');
+            const promptAction = document.getElementById('gate-prompt');
+            const lockBtn = document.getElementById('lock-btn');
+            
+            if (!passwordInput || !gateScreen || !promptAction || !lockBtn) return;
+
+            if (passwordInput.value.trim() === MASTER_PASSWORD) {
+                promptAction.innerHTML = "ACCESS GRANTED";
+                promptAction.className = "prompt-action status-granted";
+                passwordInput.style.borderBottomColor = "var(--status-green)";
+                lockBtn.disabled = true;
+
+                if (navigator.vibrate) {
+                    navigator.vibrate(80); 
+                }
+
+                setTimeout(() => {
+                    navigateTo('rules-screen');
+                }, 1100);
+
+            } else {
+                promptAction.innerHTML = "ACCESS DENIED";
+                promptAction.className = "prompt-action status-denied";
+                gateScreen.classList.add('shake');
+                passwordInput.style.borderBottomColor = "var(--status-red)";
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 60, 100]); 
+                }
+                
+                setTimeout(() => {
+                    gateScreen.classList.remove('shake');
+                }, 400);
+            }
+        }
+
+        function navigateTo(targetScreenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            const target = document.getElementById(targetScreenId);
+            if (target) target.classList.remove('hidden');
+
+            const globalTitle = document.getElementById('global-title');
+            if (targetScreenId === 'success-screen') {
+                globalTitle.innerHTML = "LOCKED IN";
+            } else if (targetScreenId === 'rules-screen') {
+                globalTitle.innerHTML = "HOUSE RULES";
+            } else if (targetScreenId === 'rsvp-screen') {
+                globalTitle.innerHTML = "R.S.V.P";
+            } else {
+                globalTitle.innerHTML = "SCRT VAULT";
+            }
+        }
+
+        function submitRSVP() {
+            const name = document.getElementById('user-name').value.trim();
+            const ig = document.getElementById('user-ig').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const city = document.getElementById('user-city').value.trim();
+            const referral = document.getElementById('user-referral').value.trim();
+
+            // Updated error message as requested
+            if(!name || !ig || !email || !city) {
+                alert("REQUEST UNSUCCESSFUL: ALL FIELDS MUST BE FILLED.");
+                return;
+            }
+
+            // Your unique Web App URL
+            const scriptUrl = "https://script.google.com/macros/s/AKfycbwazA4EeCRiJC-ZSEPD0uieXtCnBZjVdRTMH-jPLk1MEJxakgfvZqSLupNdVRUTcCs/exec";
+
+            const data = {
+                name: name,
+                ig: ig,
+                email: email,
+                city: city,
+                referral: referral
+            };
+
+            const btn = document.querySelector('#rsvp-screen .action-btn');
+            btn.innerHTML = "REQUESTING";
+            btn.disabled = true;
+
+            fetch(scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                navigateTo('success-screen');
+            })
+            .catch(err => {
+                alert("REQUEST UNSUCCESSFUL: PLEASE CHECK YOUR CONNECTION.");
+                btn.innerHTML = "REQUEST KEY";
+                btn.disabled = false;
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const pInput = document.getElementById('vault-pass');
+            if (pInput) {
+                pInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') verifyAccess();
+                });
+                
+                pInput.addEventListener('input', function() {
+                    const promptAction = document.getElementById('gate-prompt');
+                    this.style.borderBottomColor = "";
+                    if (promptAction && promptAction.innerHTML !== "#UnlockTheScrt") {
+                        promptAction.innerHTML = "#UnlockTheScrt";
+                        promptAction.className = "prompt-action";
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
