@@ -169,10 +169,9 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            gap: 3.5vh;
+            gap: 1vh; /* CHANGE THIS FROM 3.5vh TO 1vh */
             transition: opacity 0.5s var(--ease-cinematic), transform 0.5s var(--ease-cinematic);
         }
-
         .hidden {
             position: absolute;
             opacity: 0;
@@ -186,6 +185,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            margin-bottom: 2rem; /* THIS MOVES THE CONTENT UP */
         }
 
         .pass-wrapper, .form-group {
@@ -299,16 +299,17 @@
 
         #lock-btn, #agree-btn {
             width: 180px;
-            margin: 0 auto;
+            margin: -6.5vh auto 0 auto; /* Pulls the button up by 30% of the current 3.5vh gap */
         }
 
-        /* MANIFESTO LINES HOVER ARRANGEMENT */
+/* MANIFESTO LINES HOVER ARRANGEMENT */
         .rules-manifesto {
             width: 100%;
-            text-align: left;
+            text-align: center; /* Changed from left to center */
             display: flex;
             flex-direction: column;
             gap: 2vh;
+            align-items: center; /* Centers the items horizontally */
         }
 
         .rule-line {
@@ -316,10 +317,12 @@
             line-height: 1.4;
             color: #ffffff;
             display: flex;
-            align-items: flex-start;
+            flex-direction: column; /* Stacks title and desc vertically */
+            align-items: center;    /* Centers them horizontally */
             transition: transform 0.25s var(--ease-cinematic);
+            width: 100%;
+            margin-bottom: 10px;    /* Adds space between rules */
         }
-
         .rule-line:hover { transform: translateX(3px); }
 
         .rule-content {
@@ -512,7 +515,7 @@
                             <div class="detail-label">Location</div>
                             <div class="detail-value">
                                 <svg class="detail-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                                SCRT VILLA
+                                SCRT VILLA - NAIVASHA
                             </div>
                         </div>
                         <div class="detail-block">
@@ -553,7 +556,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="user-email">Email Address</label>
-                                <input type="email" id="user-email" placeholder="scrtvault.events@gmail.com" autocomplete="off">
+                                <input type="email" id="user-email" placeholder="sEcrEtvault.events@gmail.com" autocomplete="off">
                             </div>
                             <div class="form-group">
                                 <label for="user-city">CITY/TOWN</label>
