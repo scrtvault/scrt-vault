@@ -643,13 +643,19 @@
             if (target) target.classList.remove('hidden');
 
             const globalTitle = document.getElementById('global-title');
+            
+            // Apply text and specific styling to ensure it looks centered
             if (targetScreenId === 'success-screen') {
+                globalTitle.style.letterSpacing = "10px";
                 globalTitle.innerHTML = "LOCKED IN";
             } else if (targetScreenId === 'rules-screen') {
+                globalTitle.style.letterSpacing = "5px"; // Slightly tighter for longer text
                 globalTitle.innerHTML = "HOUSE RULES";
             } else if (targetScreenId === 'rsvp-screen') {
+                globalTitle.style.letterSpacing = "10px";
                 globalTitle.innerHTML = "R.S.V.P";
             } else {
+                globalTitle.style.letterSpacing = "10px";
                 globalTitle.innerHTML = "SCRT VAULT";
             }
         }
